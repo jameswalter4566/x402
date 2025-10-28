@@ -11,6 +11,21 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+app.use((req, res, next) => {
+  if (req.path === "/") return next();
+
+  const senderWallet = (req.headers["x402-sender-wallet"] || req.body?.senderWallet) ?? "";
+  if (typeof senderWallet !== "string" || senderWallet.trim().length === 0) {
+    return res.status(400).json({
+      error: "missing_sender_wallet",
+      message: "Provide the wallet address you will use for payments via the `x402-sender-wallet` header or `senderWallet` field."
+    });
+  }
+
+  req.senderWallet = senderWallet.trim();
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 const WALLET_ADDRESS = process.env.X402_WALLET_ADDRESS || "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
 
