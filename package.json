@@ -1,0 +1,28 @@
+{
+  "name": "x402",
+  "version": "1.0.0",
+  "description": "x402 Marketplace API Gateway backend",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jameswalter4566/x402.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jameswalter4566/x402/issues"
+  },
+  "homepage": "https://github.com/jameswalter4566/x402#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
+  }
+}
