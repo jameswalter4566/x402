@@ -11,6 +11,33 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+const priceMap = [
+  {
+    pattern: /^\/openai\/completions$/,
+    methods: ["POST"],
+    priceUsd: 0.05,
+    description: "OpenAI text completions"
+  },
+  {
+    pattern: /^\/openai\/chat\/completions$/,
+    methods: ["POST"],
+    priceUsd: 0.06,
+    description: "OpenAI chat completions"
+  },
+  {
+    pattern: /^\/openai\/images\/generations$/,
+    methods: ["POST"],
+    priceUsd: 0.10,
+    description: "OpenAI image generations"
+  },
+  {
+    pattern: /^\/openai\/models$/,
+    methods: ["GET"],
+    priceUsd: 0.01,
+    description: "OpenAI models listing"
+  }
+];
+
 app.use((req, res, next) => {
   if (req.path === "/") return next();
 
@@ -28,6 +55,47 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 const WALLET_ADDRESS = process.env.X402_WALLET_ADDRESS || "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
+
+const buildPaymentRequirements = (config, req) => {
+  const micros = Math.round(config.priceUsd * 1_000_000);
+  return {
+    scheme: "exact",
+    network: "solana-mainnet",
+    maxAmountRequired: String(micros),
+    resource: `${req.protocol}://${req.get("host")}${req.originalUrl}`,
+    description: config.description,
+    mimeType: "application/json",
+    outputSchema: null,
+    payTo: WALLET_ADDRESS,
+    maxTimeoutSeconds: 60,
+    asset: "USDC",
+    extra: {
+      currency: "USDC",
+      priceUsd: config.priceUsd
+    }
+  };
+};
+
+app.use((req, res, next) => {
+  if (req.path === "/") return next();
+
+  const config = priceMap.find((entry) => entry.pattern.test(req.path) && entry.methods.includes(req.method.toUpperCase()));
+  if (!config) {
+    return next();
+  }
+
+  const paymentHeader = req.headers["x-payment"];
+  if (!paymentHeader) {
+    return res.status(402).json({
+      x402Version: 1,
+      accepts: [buildPaymentRequirements(config, req)]
+    });
+  }
+
+  // TODO: integrate facilitator verification
+  req.paymentHeader = paymentHeader;
+  next();
+});
 
 app.get("/", (req, res) => {
   res.json({
