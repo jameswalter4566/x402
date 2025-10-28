@@ -31,7 +31,10 @@ The gateway boots on `http://localhost:3000/` and returns onboarding instruction
 - `POST /openai/images/generations`
 - `GET /openai/models`
 
-Each endpoint forwards the payload and headers to the OpenAI API using the configured `OPENAI_API_KEY`.
+Each endpoint forwards the payload and headers to the OpenAI API using the configured `OPENAI_API_KEY`. All requests must include:
+
+- `x402-session`: the session token issued after payment.
+- `x402-sender-wallet`: the wallet address that sent the payment (used for credit tracking).
 
 ## Deploying to Railway
 
