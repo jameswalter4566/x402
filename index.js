@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 const PORT = process.env.PORT || 3000;
-const WALLET_ADDRESS = process.env.X402_WALLET_ADDRESS || "YOUR_SOLANA_WALLET_ADDRESS_HERE";
+const WALLET_ADDRESS = process.env.X402_WALLET_ADDRESS || "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
 
 app.get("/", (req, res) => {
   res.json({
