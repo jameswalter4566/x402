@@ -33,7 +33,6 @@ const svmRpcUrl =
   process.env.SVM_RPC_URL ??
   (heliusApiKey ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}` : undefined);
 const svmPrivateKey = process.env.SVM_PRIVATE_KEY ?? "";
-const adminApiKey = process.env.ADMIN_API_KEY;
 const testPayerPrivateKey = process.env.TEST_PAYER_PRIVATE_KEY;
 const testPayerWallet = process.env.TEST_PAYER_WALLET;
 const defaultFacilitatorUrl =
@@ -53,7 +52,6 @@ app.use(express.json({ limit: "1mb" }));
 app.use(
   "/admin",
   createAdminRouter({
-    adminApiKey,
     testPayerPrivateKey,
     testPayerWallet,
     gatewayBaseUrl,

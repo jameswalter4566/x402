@@ -8,7 +8,6 @@ import {
 } from "x402/types";
 
 type AdminRouterOptions = {
-  adminApiKey?: string;
   testPayerPrivateKey?: string;
   testPayerWallet?: string;
   gatewayBaseUrl: string;
@@ -25,24 +24,10 @@ const X402_VERSION = 1;
 
 export function createAdminRouter(options: AdminRouterOptions): Router {
   const router = Router();
-  const {
-    adminApiKey,
-    testPayerPrivateKey,
-    testPayerWallet,
-    gatewayBaseUrl,
-    x402Config,
-  } = options;
+  const { testPayerPrivateKey, testPayerWallet, gatewayBaseUrl, x402Config } = options;
 
   router.post("/test-openai", async (req: Request, res: Response) => {
     try {
-      if (adminApiKey) {
-        const authHeader = req.headers.authorization;
-        if (authHeader !== `Bearer ${adminApiKey}`) {
-          res.status(401).json({ error: "unauthorized" });
-          return;
-        }
-      }
-
       if (!testPayerPrivateKey || !testPayerWallet) {
         res.status(500).json({ error: "missing_test_payer_configuration" });
         return;
