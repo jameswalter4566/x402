@@ -72,6 +72,7 @@ try {
     svmRpcUrl,
   });
   app.use("/facilitator", facilitatorRouter);
+  console.log("Facilitator router initialised");
 } catch (error) {
   console.error("Failed to initialise facilitator router", error);
   process.exit(1);
