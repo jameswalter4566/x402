@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response, Router } from "express";
-import { settle, verify } from "x402/dist/cjs/facilitator/index.js";
+import { settle, verify } from "x402/facilitator";
 import {
   PaymentPayload,
   PaymentPayloadSchema,
@@ -10,7 +10,7 @@ import {
   X402Config,
   createSigner,
   isSvmSignerWallet,
-} from "x402/dist/cjs/types/index.js";
+} from "x402/types";
 
 type FacilitatorRouterOptions = {
   apiKey?: string;

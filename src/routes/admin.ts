@@ -1,11 +1,11 @@
 import { Router, Request, Response } from "express";
-import { createPaymentHeader } from "x402/dist/cjs/client/index.js";
+import { createPaymentHeader } from "x402/client";
 import {
   PaymentRequirements,
   PaymentRequirementsSchema,
   X402Config,
   createSigner,
-} from "x402/dist/cjs/types/index.js";
+} from "x402/types";
 
 type AdminRouterOptions = {
   testPayerPrivateKey?: string;

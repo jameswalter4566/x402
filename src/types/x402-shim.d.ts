@@ -1,4 +1,4 @@
-declare module "x402/dist/cjs/types/index.js" {
+declare module "x402/types" {
   export type PaymentPayload = Record<string, unknown>;
   export type PaymentRequirements = {
     network: string;
@@ -15,26 +15,24 @@ declare module "x402/dist/cjs/types/index.js" {
       rpcUrl?: string;
     };
   };
+
+  export const SupportedSVMNetworks: readonly string[];
   export const PaymentPayloadSchema: {
     parse(input: unknown): PaymentPayload;
   };
   export const PaymentRequirementsSchema: {
     parse(input: unknown): PaymentRequirements;
   };
-  export const SupportedSVMNetworks: readonly string[];
+
   export function createSigner(
     network: string,
-    privateKey: string,
-  ): Promise<{ address?: string } & Record<string, unknown>>;
-  export function isSvmSignerWallet(value: unknown): value is { address: string };
+    secretKey: string,
+  ): Promise<{ address?: string; [key: string]: unknown }>;
+  export function isSvmSignerWallet(value: unknown): value is { address?: string };
 }
 
-declare module "x402/dist/cjs/facilitator/index.js" {
-  import type {
-    PaymentPayload,
-    PaymentRequirements,
-    X402Config,
-  } from "x402/dist/cjs/types/index.js";
+declare module "x402/facilitator" {
+  import type { PaymentPayload, PaymentRequirements, X402Config } from "x402/types";
 
   export type VerifyResponse = Record<string, unknown>;
   export type SettleResponse = Record<string, unknown>;
@@ -54,8 +52,8 @@ declare module "x402/dist/cjs/facilitator/index.js" {
   ): Promise<SettleResponse>;
 }
 
-declare module "x402/dist/cjs/client/index.js" {
-  import type { PaymentRequirements } from "x402/dist/cjs/types/index.js";
+declare module "x402/client" {
+  import type { PaymentRequirements } from "x402/types";
 
   export function createPaymentHeader(
     client: unknown,
