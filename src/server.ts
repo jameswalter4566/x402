@@ -13,7 +13,7 @@ import {
   hasSufficientCredits,
   ledgerEnabled,
   recordPayment,
-} from "./services/ledger.js";
+} from "@stream-for-change/gateway-ledger";
 
 import { pricingConfig } from "./config/pricing.js";
 import openaiRouter from "./routes/openai.js";
@@ -125,7 +125,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
           metadata: {
             requestPath: req.originalUrl,
           },
-        }).catch(error => {
+        }).catch((error: unknown) => {
           console.error("Failed to consume stored credits", error);
         });
       });
@@ -133,7 +133,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
       next();
       return;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Credit balance lookup failed", error);
   }
 
@@ -177,7 +177,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
           requestPath: req.originalUrl,
         },
       });
-    })().catch(error => {
+    })().catch((error: unknown) => {
       console.error("Failed to finalize payment ledger", error);
     });
   });

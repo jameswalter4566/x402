@@ -4,7 +4,7 @@ This service provides a payment-gated proxy to third-party APIs, starting with O
 
 ## Getting Started
 
-1. Install dependencies:
+1. Install dependencies (requires the `stream-for-change-60505` repository to be checked out alongside this repo so the local `@stream-for-change/gateway-ledger` package can be resolved):
 
 ```bash
 npm install
