@@ -33,8 +33,9 @@ const svmRpcUrl =
   process.env.SVM_RPC_URL ??
   (heliusApiKey ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}` : undefined);
 const svmPrivateKey = process.env.SVM_PRIVATE_KEY ?? "";
+const defaultTestPayerWallet = "7FHxcYUCcyFmh35froTpsHa9YwA5euALXFaH7ykVATYh";
 const testPayerPrivateKey = process.env.TEST_PAYER_PRIVATE_KEY;
-const testPayerWallet = process.env.TEST_PAYER_WALLET;
+const testPayerWallet = (process.env.TEST_PAYER_WALLET ?? defaultTestPayerWallet).trim();
 const defaultFacilitatorUrl =
   NODE_ENV === "production"
     ? "https://x402market.app/facilitator"

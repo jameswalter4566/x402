@@ -25,18 +25,19 @@ const X402_VERSION = 1;
 export function createAdminRouter(options: AdminRouterOptions): Router {
   const router = Router();
   const { testPayerPrivateKey, testPayerWallet, gatewayBaseUrl, x402Config } = options;
+  const walletAddress = testPayerWallet?.trim();
 
   router.post("/test-openai", async (req: Request, res: Response) => {
     try {
-      if (!testPayerPrivateKey || !testPayerWallet) {
+      if (!testPayerPrivateKey || !walletAddress) {
         res.status(500).json({ error: "missing_test_payer_configuration" });
         return;
       }
 
-      const requirements = await fetchPaymentRequirements(gatewayBaseUrl, testPayerWallet);
+      const requirements = await fetchPaymentRequirements(gatewayBaseUrl, walletAddress);
       const testResult = await performGatewayTest(
         gatewayBaseUrl,
-        testPayerWallet,
+        walletAddress,
         testPayerPrivateKey,
         requirements,
         x402Config,
