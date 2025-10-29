@@ -30,7 +30,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
-    "x402": "^0.3.7"
+    "x402": "^0.7.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
