@@ -22,11 +22,12 @@
   "homepage": "https://github.com/jameswalter4566/x402#readme",
   "dependencies": {
     "@stream-for-change/gateway-ledger": "file:../stream-for-change-60505/supabase/gateway-ledger",
+    "@supabase/supabase-js": "^2.45.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
-    "@supabase/supabase-js": "^2.45.4"
+    "x402": "^0.3.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

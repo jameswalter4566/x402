@@ -8,6 +8,9 @@ import {
   type PaymentRouteConfig,
 } from "./middleware/payment.js";
 
+import { createFacilitatorRouter } from "./facilitator/router.js";
+import { createAdminRouter } from "./routes/admin.js";
+
 import {
   consumeCredits,
   hasSufficientCredits,
@@ -20,27 +23,68 @@ import openaiRouter from "./routes/openai.js";
 
 dotenv.config();
 
+const PORT = Number(process.env.PORT ?? 3000);
+const NODE_ENV = process.env.NODE_ENV ?? "development";
+const DEFAULT_WALLET = "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
+const payToAddress = process.env.X402_GATEWAY_WALLET ?? DEFAULT_WALLET;
+const facilitatorApiKey = process.env.FACILITATOR_API_KEY;
+const heliusApiKey = process.env.HELIUS_API_KEY;
+const svmRpcUrl =
+  process.env.SVM_RPC_URL ??
+  (heliusApiKey ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}` : undefined);
+const svmPrivateKey = process.env.SVM_PRIVATE_KEY ?? "";
+const adminApiKey = process.env.ADMIN_API_KEY;
+const testPayerPrivateKey = process.env.TEST_PAYER_PRIVATE_KEY;
+const testPayerWallet = process.env.TEST_PAYER_WALLET;
+const defaultFacilitatorUrl =
+  NODE_ENV === "production"
+    ? "https://x402market.app/facilitator"
+    : `http://localhost:${PORT}/facilitator`;
+const facilitatorUrl = process.env.FACILITATOR_URL ?? defaultFacilitatorUrl;
+const gatewayBaseUrl =
+  NODE_ENV === "production" ? "https://x402market.app" : `http://localhost:${PORT}`;
+const x402Config = svmRpcUrl ? { svmConfig: { rpcUrl: svmRpcUrl } } : undefined;
+
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
-const PORT = Number(process.env.PORT ?? 3000);
-const DEFAULT_WALLET = "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
-const payToAddress = process.env.X402_GATEWAY_WALLET ?? DEFAULT_WALLET;
+app.use(
+  "/admin",
+  createAdminRouter({
+    adminApiKey,
+    testPayerPrivateKey,
+    testPayerWallet,
+    gatewayBaseUrl,
+    x402Config,
+  }),
+);
+
+if (!svmPrivateKey) {
+  console.error("SVM_PRIVATE_KEY is required for facilitator verification.");
+  process.exit(1);
+}
+
+try {
+  const facilitatorRouter = createFacilitatorRouter({
+    apiKey: facilitatorApiKey,
+    svmPrivateKey,
+    svmRpcUrl,
+  });
+  app.use("/facilitator", facilitatorRouter);
+} catch (error) {
+  console.error("Failed to initialise facilitator router", error);
+  process.exit(1);
+}
 
 const facilitatorConfig = buildFacilitatorConfig();
 const paymentGuard = paymentMiddleware(payToAddress, pricingConfig, facilitatorConfig);
 
-function buildFacilitatorConfig(): FacilitatorAuthConfig | undefined {
-  const facilitatorUrl = process.env.FACILITATOR_URL;
-  if (!facilitatorUrl) {
-    return undefined;
-  }
-
+function buildFacilitatorConfig(): FacilitatorAuthConfig {
   return {
     url: facilitatorUrl,
-    apiKey: process.env.FACILITATOR_API_KEY,
+    apiKey: facilitatorApiKey,
   };
 }
 
@@ -54,6 +98,11 @@ function toMicros(amountUsd: number): number {
 }
 
 app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith("/facilitator")) {
+    next();
+    return;
+  }
+
   if (req.path === "/") {
     next();
     return;
@@ -77,6 +126,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(async (req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith("/facilitator")) {
+    next();
+    return;
+  }
+
   const routeConfig = findRouteConfig(req.method, req.path);
   if (!routeConfig) {
     next();
