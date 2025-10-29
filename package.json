@@ -9,6 +9,9 @@
     "build": "tsc",
     "start": "node dist/server.js"
   },
+  "workspaces": [
+    "packages/gateway-ledger"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jameswalter4566/x402.git"
@@ -21,7 +24,7 @@
   },
   "homepage": "https://github.com/jameswalter4566/x402#readme",
   "dependencies": {
-    "@stream-for-change/gateway-ledger": "file:packages/gateway-ledger",
+    "@stream-for-change/gateway-ledger": "workspace:*",
     "@supabase/supabase-js": "^2.45.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
