@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/jameswalter4566/x402#readme",
   "dependencies": {
-    "@stream-for-change/gateway-ledger": "file:../stream-for-change-60505/supabase/gateway-ledger",
+    "@stream-for-change/gateway-ledger": "file:packages/gateway-ledger",
     "@supabase/supabase-js": "^2.45.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

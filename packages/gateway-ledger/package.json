@@ -1,0 +1,17 @@
+{
+  "name": "@stream-for-change/gateway-ledger",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./ledger": "./ledger.js",
+    "./ledger.js": "./ledger.js",
+    "./supabaseClient": "./supabaseClient.js",
+    "./supabaseClient.js": "./supabaseClient.js"
+  },
+  "types": "index.d.ts",
+  "peerDependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}
