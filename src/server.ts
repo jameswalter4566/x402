@@ -96,8 +96,10 @@ function toMicros(amountUsd: number): number {
   return Math.round(amountUsd * 1_000_000);
 }
 
+const isBypassedPath = (path: string) => path.startsWith("/facilitator") || path.startsWith("/admin");
+
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.path.startsWith("/facilitator")) {
+  if (isBypassedPath(req.path)) {
     next();
     return;
   }
@@ -125,7 +127,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(async (req: Request, res: Response, next: NextFunction) => {
-  if (req.path.startsWith("/facilitator")) {
+  if (isBypassedPath(req.path)) {
     next();
     return;
   }
