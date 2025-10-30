@@ -284,14 +284,73 @@ app.get("/", (_req, res) => {
     status: "online",
     version: "1.0.0",
     payment_instructions: {
-      how_to_pay: "Before using any endpoint, pay via the x402 protocol to unlock access.",
-      step_1: "Send your payment to the x402 Gateway wallet address:",
-      wallet_address: payToAddress,
-      step_2: "Include your request hash or session ID in the memo field for verification.",
-      step_3:
-        "Once payment is confirmed on-chain, retry your API call — the gateway will verify it automatically.",
-      accepted_currencies: ["USDC", "SOL", "$402MARKET"],
-      note: "Each call or session requires a valid on-chain payment. Unpaid requests will receive an HTTP 402 Payment Required response.",
+      overview:
+        "Every request is pay-per-use. Your first call collects a 402 challenge, then you retry with an X-PAYMENT header that proves settlement on Solana.",
+      gateway_wallet: payToAddress,
+      initial_call: {
+        description:
+          "Send the request without an X-PAYMENT header to obtain pricing and payment requirements. You will receive HTTP 402 with the structured challenge payload.",
+        example_curl: `curl -i ${gatewayBaseUrl}/openai/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'x402-sender-wallet: <YOUR_SOLANA_ADDRESS>' \
+  -d '{ "model": "gpt-4o-mini", "messages": [{ "role": "user", "content": "say hello" }] }'`,
+      },
+      payment_challenge: {
+        description:
+          "The 402 response body contains PaymentRequirements. Persist it — you must echo these exact fields when constructing the second attempt.",
+        example_402_response: {
+          status: 402,
+          body: {
+            x402Version: 1,
+            error: "X-PAYMENT header is required",
+            accepts: [
+              {
+                network: "solana",
+                scheme: "exact",
+                payTo: payToAddress,
+                amountUsd: "<calculated>",
+                memo: "<opaque session identifier>",
+              },
+            ],
+          },
+        },
+      },
+      second_attempt: {
+        description:
+          "Create a signer for your Solana wallet, pay the stated amount, encode the signed payment JSON as base64, and retry the identical request with the X-PAYMENT header.",
+        headers_required: ["x402-sender-wallet", "X-PAYMENT"],
+        curl_example: `curl -i ${gatewayBaseUrl}/openai/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'x402-sender-wallet: <YOUR_SOLANA_ADDRESS>' \
+  -H 'X-PAYMENT: <BASE64_PAYMENT_HEADER>' \
+  -d '{ "model": "gpt-4o-mini", "messages": [{ "role": "user", "content": "say hello" }] }'`,
+        node_example: [
+          "import { createSigner } from \"x402/types\";",
+          "import { createPaymentHeader } from \"x402/client\";",
+          "",
+          "const signer = await createSigner(\"solana\", process.env.SVM_PRIVATE_KEY!);",
+          "const header = await createPaymentHeader(signer, 1, paymentRequirements);",
+          `const response = await fetch("${gatewayBaseUrl}/openai/chat/completions", {`,
+
+          "  method: \"POST\",",
+          "  headers: {",
+          "    \"content-type\": \"application/json\",",
+          "    \"x402-sender-wallet\": signer.address,",
+          "    \"X-PAYMENT\": header,",
+          "  },",
+          "  body: JSON.stringify(payload),",
+          "});",
+        ],
+        payment_payload_template: {
+          paymentPayload: "<Signed payment payload from your facilitator>",
+          paymentRequirements: "<Exact object returned in the initial 402 response>",
+        },
+      },
+      tips: [
+        "Ensure the wallet that signs the payment matches the `x402-sender-wallet` header.",
+        "Reuse the payment receipt for additional calls until the credited balance is exhausted.",
+        "Always base64-encode the full JSON envelope when setting the `X-PAYMENT` header.",
+      ],
     },
     available_endpoints: {
       openai_completions: "/openai/completions",
