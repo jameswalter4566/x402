@@ -25,4 +25,29 @@ export const pricingConfig: PaymentRoutesConfig = {
     description: "OpenAI models listing",
     mimeType: "application/json",
   },
+  "POST /claude/messages": {
+    priceUsd: 0.07,
+    network: "solana",
+    description: "Claude messages API",
+    mimeType: "application/json",
+  },
+  "POST /google-sheets/values/get": {
+    priceUsd: 0.04,
+    network: "solana",
+    description: "Google Sheets value retrieval",
+    mimeType: "application/json",
+  },
+  "POST /google-sheets/values/update": {
+    priceUsd: 0.05,
+    network: "solana",
+    description: "Google Sheets value update",
+    mimeType: "application/json",
+  },
+  "POST /google-sheets/values/append": {
+    priceUsd: 0.05,
+    network: "solana",
+    description: "Google Sheets append values",
+    mimeType: "application/json",
+  },
+
 };

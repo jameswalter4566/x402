@@ -23,6 +23,8 @@ import {
 
 import { pricingConfig } from "./config/pricing.js";
 import openaiRouter from "./routes/openai.js";
+import claudeRouter from "./routes/claude.js";
+import googleSheetsRouter from "./routes/googleSheets.js";
 
 dotenv.config();
 
@@ -366,6 +368,8 @@ app.get("/", (_req, res) => {
   });
 });
 
+app.use("/claude", claudeRouter);
+app.use("/google-sheets", googleSheetsRouter);
 app.use("/openai", openaiRouter);
 
 app.use((req: Request, res: Response) => {
