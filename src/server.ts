@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { NextFunction, Request, Response } from "express";
@@ -23,6 +25,41 @@ import openaiRouter from "./routes/openai.js";
 
 dotenv.config();
 
+function loadSvmPrivateKey(): string | undefined {
+  const direct = process.env.SVM_PRIVATE_KEY;
+  if (typeof direct === "string" && direct.trim().length > 0) {
+    return direct.trim();
+  }
+
+  const base64 = process.env.SVM_PRIVATE_KEY_BASE64 ?? process.env.SVM_PRIVATE_KEY_B64;
+  if (typeof base64 === "string" && base64.trim().length > 0) {
+    try {
+      const decoded = Buffer.from(base64.trim(), "base64").toString("utf-8").trim();
+      if (decoded.length > 0) {
+        return decoded;
+      }
+    } catch (error) {
+      console.error("Failed to decode SVM_PRIVATE_KEY_BASE64", error);
+    }
+  }
+
+  const filePath = process.env.SVM_PRIVATE_KEY_FILE ?? process.env.SVM_PRIVATE_KEY_PATH;
+  if (typeof filePath === "string" && filePath.trim().length > 0) {
+    try {
+      const fileContents = readFileSync(filePath.trim(), "utf-8").trim();
+      if (fileContents.length > 0) {
+        return fileContents;
+      }
+
+      console.warn(`SVM private key file at '${filePath}' is empty.`);
+    } catch (error) {
+      console.error(`Failed to read SVM private key file at '${filePath}'`, error);
+    }
+  }
+
+  return undefined;
+}
+
 const PORT = Number(process.env.PORT ?? 3000);
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const DEFAULT_WALLET = "9rKmtdWDHGmi3xqyvTM23Bps5wUwg2oB7Y9HAseRrxqv";
@@ -32,7 +69,7 @@ const heliusApiKey = process.env.HELIUS_API_KEY;
 const svmRpcUrl =
   process.env.SVM_RPC_URL ??
   (heliusApiKey ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}` : undefined);
-const svmPrivateKey = process.env.SVM_PRIVATE_KEY ?? "";
+const svmPrivateKey = loadSvmPrivateKey();
 const defaultTestPayerWallet = "7FHxcYUCcyFmh35froTpsHa9YwA5euALXFaH7ykVATYh";
 const testPayerPrivateKey = process.env.TEST_PAYER_PRIVATE_KEY;
 const testPayerWallet = (process.env.TEST_PAYER_WALLET ?? defaultTestPayerWallet).trim();
