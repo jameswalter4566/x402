@@ -379,5 +379,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`x402 OpenAI gateway running on port ${PORT}`);
+  console.log(`x402 gateway running on port ${PORT}`);
 });
