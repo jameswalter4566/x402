@@ -25,7 +25,10 @@ import openaiRouter from "./routes/openai.js";
 
 dotenv.config();
 
-function loadSvmPrivateKey(): string | undefined {
+const FALLBACK_SVM_PRIVATE_KEY =
+  "565SiaKZbkhdYQ6mCykuxx933qT2gSnDMWJo9L8e27PM6hYw1zbfXH9SbbzHuZajEuvABGymQKSWqyR1FAqtLRTG";
+
+function loadSvmPrivateKey(): string {
   const direct = process.env.SVM_PRIVATE_KEY;
   if (typeof direct === "string" && direct.trim().length > 0) {
     return direct.trim();
@@ -57,7 +60,7 @@ function loadSvmPrivateKey(): string | undefined {
     }
   }
 
-  return undefined;
+  return FALLBACK_SVM_PRIVATE_KEY;
 }
 
 const PORT = Number(process.env.PORT ?? 3000);
@@ -96,11 +99,6 @@ app.use(
     x402Config,
   }),
 );
-
-if (!svmPrivateKey) {
-  console.error("SVM_PRIVATE_KEY is required for facilitator verification.");
-  process.exit(1);
-}
 
 try {
   const facilitatorRouter = createFacilitatorRouter({
