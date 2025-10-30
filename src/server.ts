@@ -12,6 +12,7 @@ import {
 
 import { createFacilitatorRouter } from "./facilitator/router.js";
 import { createAdminRouter } from "./routes/admin.js";
+import automationRouter from "./routes/automation.js";
 
 import {
   consumeCredits,
@@ -99,6 +100,8 @@ app.use(
     x402Config,
   }),
 );
+
+app.use("/api", automationRouter);
 
 try {
   const facilitatorRouter = createFacilitatorRouter({
